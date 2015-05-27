@@ -6,6 +6,7 @@ import (
 )
 
 type CovCalculator struct {
+	N     int
 	corrs []*correlation.BivariateCovariance
 }
 
@@ -15,6 +16,7 @@ func NewCovCalculator(maxl int, bias bool) *CovCalculator {
 	for i := 0; i < maxl; i++ {
 		cc.corrs[i] = correlation.NewBivariateCovariance(bias)
 	}
+	cc.N = maxl
 	return &cc
 }
 
