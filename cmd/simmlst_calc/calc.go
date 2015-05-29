@@ -49,11 +49,26 @@ func read(filename string) chan ParameterSet {
 	return streamPS(psArr)
 }
 
-func collect(resChan chan Result) []Result {
-	var results []Result
+func collect(resChan chan tempResult) []Result {
+	m := make(map[ParameterSet]*Calculators)
 	for res := range resChan {
-		results = append(results, res)
+		c, found := m[res.Ps]
+		if !found {
+			c = res.C
+		} else {
+			c.Append(res.C)
+		}
+		m[res.Ps] = c
 	}
+
+	var results []Result
+	for ps, c := range m {
+		res := Result{}
+		res.Ps = ps
+		res.C = createCovResult(c)
+		results = append(results)
+	}
+
 	return results
 }
 
@@ -79,11 +94,16 @@ func createCovResult(c *Calculators) CovResult {
 	return cr
 }
 
-func runSimulation(psChan chan ParameterSet) chan Result {
+type tempResult struct {
+	Ps ParameterSet
+	C  *Calculators
+}
+
+func runSimulation(psChan chan ParameterSet) chan tempResult {
 	ncpu := runtime.GOMAXPROCS(0)
 	numWorker := ncpu
 
-	resChan := make(chan Result)
+	resChan := make(chan tempResult)
 	done := make(chan bool)
 
 	worker := func() {
@@ -96,7 +116,7 @@ func runSimulation(psChan chan ParameterSet) chan Result {
 			geneGroups := readSequences(tempfile.Name())
 			c := calcCorr(geneGroups, maxl)
 
-			resChan <- Result{Ps: ps, C: createCovResult(c)}
+			resChan <- tempResult{Ps: ps, C: c}
 
 			os.Remove(tempfile.Name())
 		}
