@@ -50,7 +50,7 @@ func read(filename string) chan ParameterSet {
 }
 
 func collect(resChan chan tempResult) []Result {
-	m := make(map[ParameterSet]*Calculators)
+	m := make(map[ParameterSet]*CalculatorsFFT)
 	for res := range resChan {
 		c, found := m[res.Ps]
 		if !found {
@@ -85,7 +85,7 @@ func write(filename string, results []Result) {
 	}
 }
 
-func createCovResult(c *Calculators) CovResult {
+func createCovResult(c *CalculatorsFFT) CovResult {
 	var cr CovResult
 	cr.Ks = c.Ks.Mean.GetResult()
 	for i := 0; i < c.Ct.N; i++ {
@@ -96,7 +96,7 @@ func createCovResult(c *Calculators) CovResult {
 
 type tempResult struct {
 	Ps ParameterSet
-	C  *Calculators
+	C  *CalculatorsFFT
 }
 
 func runSimulation(psChan chan ParameterSet) chan tempResult {
@@ -139,7 +139,7 @@ func readSequences(filename string) (geneGroups [][]*seq.Sequence) {
 	return
 }
 
-func calcCorr(geneGroups [][]*seq.Sequence, maxl int) (c *Calculators) {
+func calcCorr(geneGroups [][]*seq.Sequence, maxl int) (c *CalculatorsFFT) {
 	for i := 0; i < len(geneGroups); i++ {
 		c1 := calcCorrOne(geneGroups[i], maxl)
 		if i == 0 {
@@ -152,9 +152,9 @@ func calcCorr(geneGroups [][]*seq.Sequence, maxl int) (c *Calculators) {
 	return
 }
 
-func calcCorrOne(genes []*seq.Sequence, maxl int) *Calculators {
-	var c Calculators
-	c.Ct = CalcCt(genes, maxl)
+func calcCorrOne(genes []*seq.Sequence, maxl int) *CalculatorsFFT {
+	var c CalculatorsFFT
+	c.Ct = CalcCtFFT(genes, maxl)
 	c.Ks = CalcKs(genes)
 	return &c
 }
