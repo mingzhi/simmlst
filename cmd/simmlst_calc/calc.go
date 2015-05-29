@@ -89,19 +89,16 @@ func runSimulation(psChan chan ParameterSet) chan Result {
 	worker := func() {
 		defer send(done)
 		for ps := range psChan {
-			if len(ps.DataFile) == 0 {
-				temp, _ := ioutil.TempFile("", "simmlst")
-				ps.DataFile = temp.Name()
-			}
+			tempfile, _ := ioutil.TempFile("", "simmlst")
 
-			Exec(ps)
+			Exec(ps, tempfile.Name())
 
-			geneGroups := readSequences(ps.DataFile)
+			geneGroups := readSequences(tempfile.Name())
 			c := calcCorr(geneGroups, maxl)
 
 			resChan <- Result{Ps: ps, C: createCovResult(c)}
 
-			os.Remove(ps.DataFile)
+			os.Remove(tempfile.Name())
 		}
 	}
 

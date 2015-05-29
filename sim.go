@@ -10,7 +10,6 @@ type ParameterSet struct {
 	Theta, Rho       float64
 	N, Delta         int
 	NumGene, LenGene int
-	DataFile         string
 }
 
 func (p ParameterSet) parse() (options []string) {
@@ -18,7 +17,6 @@ func (p ParameterSet) parse() (options []string) {
 	options = append(options, []string{"-D", parseInt(p.Delta)}...)
 	options = append(options, []string{"-T", parseFloat64(p.Theta)}...)
 	options = append(options, []string{"-R", parseFloat64(p.Rho)}...)
-	options = append(options, []string{"-o", p.DataFile}...)
 
 	var blocks []string
 	for i := 0; i < p.NumGene; i++ {
@@ -29,9 +27,10 @@ func (p ParameterSet) parse() (options []string) {
 	return
 }
 
-func Exec(ps ParameterSet) {
+func Exec(ps ParameterSet, tempfile string) {
 	var options []string
 	options = ps.parse()
+	options = append(options, []string{"-o", tempfile}...)
 	cmd := exec.Command("simmlst", options...)
 	err := cmd.Run()
 	if err != nil {

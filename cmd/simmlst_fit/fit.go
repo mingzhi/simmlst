@@ -17,7 +17,7 @@ var (
 )
 
 func init() {
-	flag.IntVar(&ncpu, "ncpu", runtime.GOMAXPROCS(0), "ncpu")
+	flag.IntVar(&ncpu, "ncpu", runtime.NumCPU(), "ncpu")
 	flag.Parse()
 
 	input = flag.Arg(0)
@@ -75,7 +75,7 @@ type FitControl struct {
 
 func batchFit(resChan chan Result) []FitResult {
 	fitFuncMap := make(map[string]FitControl)
-	fitFuncMap["Exp"] = FitControl{FitFunc: fit.FitExp, Start: 1, End: 150}
+	fitFuncMap["Exp"] = FitControl{FitFunc: fit.FitExp, Start: 1, End: -1}
 	fitFuncMap["Hyper"] = FitControl{FitFunc: fit.FitHyper, Start: 1, End: 10}
 
 	numWorker := ncpu
@@ -88,6 +88,9 @@ func batchFit(resChan chan Result) []FitResult {
 				fitFunc := fitControl.FitFunc
 				start := fitControl.Start
 				end := fitControl.End
+				if end < 0 {
+					end = len(res.C.Ct)
+				}
 				fitRes := doFit(res, fitFunc, start, end)
 				fitRes.Func = name
 				fitResChan <- fitRes
@@ -138,7 +141,13 @@ func doFit(res Result, fitFunc FitFunc, start, end int) FitResult {
 		fitRes.B2 = par[2]
 	}
 
-	fitRes.Ps = res.Ps
+	fitRes.Delta = res.Ps.Delta
+	fitRes.LenGene = res.Ps.LenGene
+	fitRes.N = res.Ps.N
+	fitRes.NumGene = res.Ps.NumGene
+	fitRes.Rho = res.Ps.Rho
+	fitRes.Theta = res.Ps.Theta
+	fitRes.Ks = res.C.Ks
 
 	return fitRes
 }
