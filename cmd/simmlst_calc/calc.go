@@ -66,7 +66,7 @@ func collect(resChan chan tempResult) []Result {
 		res := Result{}
 		res.Ps = ps
 		res.C = createCovResult(c)
-		results = append(results)
+		results = append(results, res)
 	}
 
 	return results
