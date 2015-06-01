@@ -10,7 +10,7 @@ import (
 )
 
 func TestExec(t *testing.T) {
-	var ps ParameterSet
+	var ps Config
 	ps.N = 10
 	ps.Delta = 50
 	ps.LenGene = 10000

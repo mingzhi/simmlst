@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-type ParameterSet struct {
+type Config struct {
 	Theta, Rho       float64
 	N, Delta         int
 	NumGene, LenGene int
 }
 
-func (p ParameterSet) parse() (options []string) {
+func (p Config) parse() (options []string) {
 	options = append(options, []string{"-N", parseInt(p.N)}...)
 	options = append(options, []string{"-D", parseInt(p.Delta)}...)
 	options = append(options, []string{"-T", parseFloat64(p.Theta)}...)
@@ -27,7 +27,7 @@ func (p ParameterSet) parse() (options []string) {
 	return
 }
 
-func Exec(ps ParameterSet, tempfile string) {
+func Exec(ps Config, tempfile string) {
 	var options []string
 	options = ps.parse()
 	options = append(options, []string{"-o", tempfile}...)

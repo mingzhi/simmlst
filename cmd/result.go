@@ -5,7 +5,7 @@ import (
 )
 
 type Result struct {
-	Ps ParameterSet
+	Ps Config
 	C  CovResult
 }
 
